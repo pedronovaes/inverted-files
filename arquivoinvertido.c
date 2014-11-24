@@ -6,6 +6,7 @@
 #define TAM 1000000
 
 char separadores[] = {'\n','\t','_','-','.',',','!','?',':',';',' '};
+int posicao;
 
 typedef struct Nome{
 	char name[TAM];
@@ -13,32 +14,36 @@ typedef struct Nome{
 	struct Nome *prox_nome;
 }Nome, *Pnome;
 
+//Lista de arquivos para armazenar a informacao de cada palavra
 typedef struct Lista{
-	int aparicoes[TAM];
-	int n_arq;
-	int n_ap;
+	int aparicoes[TAM]; //variavel que armazena a posicao em que a palavra aparece no arquivo
+	int n_arq; //numero do arquivo
+	int n_ap; //numero de aparicoes da palavra
 	struct Lista *prox_arq;
 }Lista, *Plista;
 
+//funcoes
 int seekChar(char *str, char ch);
 void inicializa_lista(Plista *l);
 void inicializa_nome(Pnome *l);
+void inserir_nome(Pnome *l, char *nome, int num_arq);
 int consulta_nome(Pnome l, char *nome);
-void insere_nome(Pnome *l, char *nome);
-
+Pnome cons_nome(Pnome l, char *nome);
+void inserir_arquivo(Plista *l, int num_arq);
+int consulta_num_arq(Plista l, int num_arq);
+Plista cons_arq(Plista l, int num_arq);
+void imprimir_dados(Pnome l);
 
 int main(int argc, char *argv[]){
 	
-	int i = 0, count, posicao = 0, j = 0, tamanho = 0;
+	int i = 0, count, j = 0, tamanho = 0;
 	FILE *arquivo;
-	char buffer[2];
 	char carac;
-	Plista lista;
-	Pnome nome;
+	Pnome lista_nome;
 	char string[TAM];
+	posicao = 0;
 
-	inicializa_lista(&lista);
-	inicializa_nome(&nome);
+	inicializa_nome(&lista_nome);
 
 	for(count = 1; count < argc; count++){
 		arquivo = fopen(argv[count], "r");
@@ -58,13 +63,11 @@ int main(int argc, char *argv[]){
 			if((seekChar(separadores,arquivao[i])) && (j == 0))
 				continue;
 
-			//if(arquivao[i] == ' ')
-			//	posicao++;
-
 			if((seekChar(separadores,arquivao[i]))){
 				string[j] = '\0';
 				posicao++;
-				printf("PALAVRA: %s\nPOSICAO: %d\nARQUIVO: %d\n\n", string, posicao, count);
+				//printf("%s %d %d\n", string, count, posicao);
+				inserir_nome(&lista_nome,string,count);	
 				j = 0;
 			}
 			else{
@@ -77,7 +80,7 @@ int main(int argc, char *argv[]){
 		tamanho = 0;
 		posicao = 0;
 	}
-
+	imprimir_dados(lista_nome);
 	fclose(arquivo);
 	return 0;
 }	
@@ -99,22 +102,87 @@ void inicializa_nome(Pnome *l){
 	*l = NULL;
 }
 
-
 //funcao que retorna 1 caso o nome ja esteja contido na lista. Caso contrario, retorna 0
 int consulta_nome(Pnome l, char *nome){
-	Nome *p;
+	Pnome p;
 	for(p = l; (p != NULL) && (strcmp(p->name,nome) != 0); p = p->prox_nome);
 	if(p)
 		return 1;
 	return 0;
 }
 
-void insere_nome(Pnome *l, char *nome){
+//funcao que retorna um ponteiro para determinado nome existente na lista
+Pnome cons_nome(Pnome l, char *nome){
 	Pnome p;
-	if(consulta_nome(*l,nome))
+	for(p = l; (p != NULL) && (strcmp(p->name,nome) != 0); p = p->prox_nome);
+	return (p);
+}
+
+//funcao para inserir um nome na lista de nomes. Essa funcao chama outra funcao para inserir os dados referentes ao nome
+void inserir_nome(Pnome *l, char *nome, int num_arq){
+	Pnome p;
+
+	//verificar se ja existe um nome igual na lista de nomes
+	if(consulta_nome(*l,nome)){
+		p = cons_nome(*l,nome);
+		inserir_arquivo(&(p->prox),num_arq);
 		return;
+	}
 	p = (Nome *)malloc(sizeof(Nome));
 	strcpy(p->name,nome);
 	p->prox_nome = *l;
+	inserir_arquivo(&(p->prox),num_arq);
 	*l = p;
+
+}
+
+//funcao para inserir os dados de determinado nome
+void inserir_arquivo(Plista *l, int num_arq){
+	Plista p;
+
+	if(consulta_num_arq(*l,num_arq)){
+		p = cons_arq(*l,num_arq);
+		p->aparicoes[p->n_ap] = posicao;
+		p->n_ap++;
+		return;
+	}
+	p = (Lista *)malloc(sizeof(Lista));
+	p->n_arq = num_arq;
+	p->aparicoes[0] = posicao;
+	p->n_ap = 1;
+	p->prox_arq = *l;
+	*l = p;
+}
+
+//funcao que retorna 1 caso ja exista um nodo com o numero de arquivo procurado. Caso contrario, retorna 0
+int consulta_num_arq(Plista l, int num_arq){
+	Plista p;
+	for(p = l; (p != NULL) && (p->n_arq != num_arq); p = p->prox_arq);
+	if (p)
+		return 1;
+	return 0;
+}
+
+//funcao que retorna um ponteiro para determinado nodo que possua o numero de arquivo desejado
+Plista cons_arq(Plista l, int num_arq){
+	Plista p;
+	for(p = l; (p != NULL) && (p->n_arq != num_arq); p = p->prox_arq);
+	return (p);
+}
+
+void imprimir_dados(Pnome l){
+	Pnome p;
+	Plista q;
+	int i;
+
+	for(p = l; (p); p = p->prox_nome){
+		printf("%s\n", p->name);
+		for(q = p->prox; (q); q = q->prox_arq){
+			printf("ARQUIVO %d\n", q->n_arq);
+			for(i = 0; i < (q->n_ap); i++)
+				printf("%d ", q->aparicoes[i]);
+			printf("\n");
+		}
+		printf("\n\n");
+	}
 }
