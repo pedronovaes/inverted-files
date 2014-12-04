@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define TAM 1000000
+#define TAM 2000000
 
 char separadores[] = {'\n','\t','_','-','.',',','!','?',':',';',' '};
 int posicao;
@@ -33,18 +33,20 @@ void inserir_arquivo(Plista *l, int num_arq);
 int consulta_num_arq(Plista l, int num_arq);
 Plista cons_arq(Plista l, int num_arq);
 void imprimir_dados(Pnome l);
+void get_string(char *string);
 
 int main(int argc, char *argv[]){
 	
 	int i = 0, count, j = 0, tamanho = 0;
 	FILE *arquivo;
 	char carac;
-	Pnome lista_nome;
 	char string[TAM];
-	posicao = 0;
+	Pnome lista_nome;
 
+	posicao = 0;
 	inicializa_nome(&lista_nome);
 
+	//neste for eh construido o 'arquivo invertido' e eh inserido todos os dados dos arquivos passados por parametro no arquivo invertido
 	for(count = 1; count < argc; count++){
 		arquivo = fopen(argv[count], "r");
 
@@ -52,6 +54,8 @@ int main(int argc, char *argv[]){
 			tamanho++;
 		rewind(arquivo);
 		char arquivao[tamanho];
+
+		//todos os caracteres de 'arquivo' eh armazenado em 'arquivao'. Depois eh feito a mineracao dos dados no arquivao
 		while((carac = fgetc(arquivo)) != EOF){
 			arquivao[i] = carac;
 			i++;
@@ -66,7 +70,6 @@ int main(int argc, char *argv[]){
 			if((seekChar(separadores,arquivao[i]))){
 				string[j] = '\0';
 				posicao++;
-				//printf("%s %d %d\n", string, count, posicao);
 				inserir_nome(&lista_nome,string,count);	
 				j = 0;
 			}
@@ -81,7 +84,17 @@ int main(int argc, char *argv[]){
 		posicao = 0;
 	}
 	imprimir_dados(lista_nome);
-	fclose(arquivo);
+
+	//neste laco pega-se os dados da entrada padrao e eh feito a busca no arquivo invertido para saber se a frase esta
+	//contida ou nao no arquivo invertido
+	i = 0;
+	string[i] = '\0';
+	while(fgets(string, sizeof(string), stdin)){
+		string[strlen(string)-1] = '\0';
+		get_string(string);
+	}
+
+	//fclose(arquivo);
 	return 0;
 }	
 
@@ -176,13 +189,29 @@ void imprimir_dados(Pnome l){
 	int i;
 
 	for(p = l; (p); p = p->prox_nome){
-		printf("%s\n", p->name);
+		printf("nome: %s\n", p->name);
 		for(q = p->prox; (q); q = q->prox_arq){
-			printf("ARQUIVO %d\n", q->n_arq);
+			printf("arquivo: %d\nposicoes: ", q->n_arq);
 			for(i = 0; i < (q->n_ap); i++)
 				printf("%d ", q->aparicoes[i]);
 			printf("\n");
 		}
-		printf("\n\n");
+		printf("\n");
 	}
 }
+
+void get_string(char *string){
+	int qtd_espaco = 0;
+	char words[strlen(string)];
+	int i = 0;
+
+	for(i = 0; (qtd_espaco < 10) && (i < strlen(string)); i++){
+		if(string[i] == ' ')
+			qtd_espaco++;
+
+		words[i] = string[i];
+	}
+	
+	words[i] = '\0';
+	printf("%s\n", words);
+}	
