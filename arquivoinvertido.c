@@ -33,7 +33,7 @@ void inserir_arquivo(Plista *l, int num_arq);
 int consulta_num_arq(Plista l, int num_arq);
 Plista cons_arq(Plista l, int num_arq);
 void imprimir_dados(Pnome l);
-void get_string(char *string);
+void verificar_frase(Pnome l, char *string);
 
 int main(int argc, char *argv[]){
 	
@@ -89,12 +89,26 @@ int main(int argc, char *argv[]){
 	//contida ou nao no arquivo invertido
 	i = 0;
 	string[i] = '\0';
+	char words[TAM];
+	int qtd_espaco = 0;
 	while(fgets(string, sizeof(string), stdin)){
 		string[strlen(string)-1] = '\0';
-		get_string(string);
+		qtd_espaco = 0;
+		for(i = 0; (qtd_espaco < 10) && (i < strlen(string)); i++){
+			if(string[i] == ' ')
+				qtd_espaco++;
+
+			words[i] = string[i];
+		}
+		words[i] = '\0';
+
+		//AQUI VAI ESTAR A CHAMADA DA FUNCAO PARA VERIFICACAO DA EXISTENCIA DAS FRASES NOS ARQUIVOS INVERTIDOS
+		//nao esquecer de colocar a palavra toda em minusculo
+		verificar_frase(lista_nome, words);
+
 	}
 
-	//fclose(arquivo);
+	fclose(arquivo);
 	return 0;
 }	
 
@@ -200,18 +214,34 @@ void imprimir_dados(Pnome l){
 	}
 }
 
-void get_string(char *string){
-	int qtd_espaco = 0;
-	char words[strlen(string)];
-	int i = 0;
+void verificar_frase(Pnome l, char *string){
+	int posicao_input = 0;
+	Pnome p;
+	int i, j = 0;
+	char nome_aux[TAM];
 
-	for(i = 0; (qtd_espaco < 10) && (i < strlen(string)); i++){
-		if(string[i] == ' ')
-			qtd_espaco++;
+	if(string[strlen(string) - 1] == ' ')
+		string[strlen(string) - 1] = '\0';
+	for(i = 0; i < strlen(string)+1; i++){
 
-		words[i] = string[i];
+		if(string[i] == ' ' || string[i] == '\0'){
+			nome_aux[j] = '\0';
+			printf("%s\n", nome_aux);
+			j = 0;
+			if(consulta_nome(l,nome_aux)){
+				//AQUI VAI FAZER AS COMPARACOES
+				p = cons_nome(l,nome_aux);
+			}
+			else{
+				//caso nao tenha a palavra 
+				//printf("FRASE NAO ENCONTRADA!\n");
+			}
+		}
+		else{
+			nome_aux[j] = string[i];
+			j++;
+		}
+
+
 	}
-	
-	words[i] = '\0';
-	printf("%s\n", words);
-}	
+}
