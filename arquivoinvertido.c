@@ -220,86 +220,121 @@ void imprimir_dados(Pnome l){
 }
 
 void verificar_frase(Pnome l, char *string, int qtd_arquivo){
-	int numero_arq, achou, qtd_ap, entra = 0, pos = 0, controla_print = 0;
+	int numero_arq, achou, qtd_ap, entra = 0, pos = 0, controla_print = 0, tem = 0,final = 0;
 	int x, i = 0, cont, len, j = 0;
-	Pnome p = NULL, q = NULL, w = NULL;
+	Pnome p = NULL, q = NULL;
 	char nome_aux[TAM], primeira_palavra[TAM];
 
 	if(string[strlen(string) - 1] == ' ')
 		string[strlen(string) - 1] = '\0';
 	printf("%s\n", string);
 
-	//a primeira palavra esta na variavel nome_aux
-	//a variavel 'i' guarda o tamanho da primeira palavra
+
 	while(string[i] != ' ' && string[i] != '\0'){
 		primeira_palavra[i] = string[i];
 		i++;
 	}
 	primeira_palavra[i] = '\0';
-	//printf("%d\n", i);
-	//printf("%d\n", (int)strlen(string));
 	len = strlen(string);
 
+	if(strlen(string) == strlen(primeira_palavra)){
+		for(numero_arq = 1; numero_arq < qtd_arquivo; numero_arq++){
+			if(consulta_nome(l,primeira_palavra)){
+				p = cons_nome(l,primeira_palavra);
+				if(consulta_num_arq(p->prox,numero_arq))
+					printf("arq%d.txt\n", numero_arq);
+			}
+			else
+				printf("FRASE NAO ENCONTRADA!\n");
+		}
+		return;
+
+	}
+
 	for(numero_arq = 1; numero_arq < qtd_arquivo; numero_arq++){
-		printf("Numero arquivo: %d\n", numero_arq);
+
 		if(consulta_nome(l,primeira_palavra)){
 			p = cons_nome(l,primeira_palavra);
 			qtd_ap = busca_qtd(p->prox,numero_arq);
 		}
 		else{
 			achou = 0;
-			break;
+			controla_print = 0;
+			goto fim;
 		}
 
-		//vamos percorrer o vetor de aparicoes de cada arquivo por completo da primeira palavra
-		for(x = 0; x < qtd_ap; x++){
-			//printf("number: %d\n", x);
-
-			if(consulta_nome(l,primeira_palavra)){
+		//caso o primeiro nome tenha aparicoes no arquivo invertido
+		if(qtd_ap == 1 || qtd_ap > 1){
+			for(x = 0; x < qtd_ap; x++){
+				//pegar conteudo do vetor de aparicoes da primeira palavra
 				p = cons_nome(l,primeira_palavra);
 				pos = pegar_valor_vetor(p->prox,numero_arq,x);
-				printf("PRIMEIRA PALAVRA: %s POSICAO: %d\n", primeira_palavra, pos);
 				pos++;
-			}
 
-			for(cont = (i + 1); cont < (len+1); cont++){
+				for(cont = (i + 1); cont < (len + 1); cont++){
+					if(string[cont] != ' ' && string[cont] != '\0'){
+						nome_aux[j] = string[cont];
+						j++;
+					}
+					else{
+						nome_aux[j] = '\0';
+						j = 0;
 
-				if(string[cont] != ' ' && string[cont] != '\0'){
-					nome_aux[j] = string[cont];
-					j++;
+						if(consulta_nome(l,nome_aux)){
+							q = cons_nome(l,nome_aux);
+							if(consulta_num_arq(q->prox,numero_arq)){
+								achou = verifica_posicao(q->prox,numero_arq,pos);
+							}
+							else{
+								break;
+							}
+
+						}
+						else{
+							achou = 0;
+							controla_print = 0;
+							goto fim;
+						}
+
+						if(achou == 1){
+							pos++;
+							controla_print = 1;
+						}
+						else{
+							achou = 0;
+							j = 0;
+							nome_aux[j] = '\0';
+							controla_print = 0;
+							break;
+						}
+
+						nome_aux[0] = '\0';
+					}
 				}
-				else{
-					nome_aux[j] = '\0';
-					printf("NOME AUX: %s POSICAO: %d\n", nome_aux, pos);
-					pos++;
-					j = 0;
+
+				if(achou == 1 && controla_print == 1){
+					printf("arq%d.txt\n", numero_arq);
+					final = 1;
+					break;
 				}
 			}
-			nome_aux[0] = '\0';
+		} //fim 'if' qtd_ap maior que um
+	} //fim 'for' numero arquivo
 
-		}
-
-		//if(achou == 1){
-		//	printf("arq%d.txt\n", numero_arq);
-		//	controla_print = 1;
-		//}
-	}
-	printf("\n");
-	//fim:
-	//if(achou == 0 && controla_print == 0)
-	//	printf("FRASE NAO ENCONTRADA!\n");
+	fim:
+	if(final == 0)
+		printf("FRASE NAO ENCONTRADA!\n");
 }
 
-int verifica_posicao(Plista l, int num, int pos){
+int verifica_posicao(Plista l, int num_arquivo, int pos){
 	Plista p;
 	int i;
 
-	if(consulta_num_arq(l,num)){
-		p = cons_arq(l,num);
+	if(consulta_num_arq(l,num_arquivo)){
+		p = cons_arq(l,num_arquivo);
 
 		for(i = 0; i < (p->n_ap); i++){
 			if(p->aparicoes[i] == pos){
-				printf("posicao: %d\n", p->aparicoes[i]);
 				return 1;
 			}
 		}
@@ -311,7 +346,7 @@ int verifica_posicao(Plista l, int num, int pos){
 //funcao que retorna a quantidade de aparicoes que determinada palavra ocorre em um determinado arquivo 'num'
 int busca_qtd(Plista l, int num){
 	Plista p;
-	int aprc;
+	int aprc = 0;
 
 	if(consulta_num_arq(l,num)){
 		p = cons_arq(l,num);
