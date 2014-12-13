@@ -33,7 +33,11 @@ void inserir_arquivo(Plista *l, int num_arq);
 int consulta_num_arq(Plista l, int num_arq);
 Plista cons_arq(Plista l, int num_arq);
 void imprimir_dados(Pnome l);
-void verificar_frase(Pnome l, char *string);
+void verificar_frase(Pnome l, char *string, int qtd_arquivo);
+int busca_qtd(Plista l, int num);
+int pegar_valor_vetor(Plista l, int num, int pos);
+int verifica_posicao(Plista l, int num, int pos);
+
 
 int main(int argc, char *argv[]){
 	
@@ -83,7 +87,7 @@ int main(int argc, char *argv[]){
 		tamanho = 0;
 		posicao = 0;
 	}
-	imprimir_dados(lista_nome);
+	//imprimir_dados(lista_nome);
 
 	//neste laco pega-se os dados da entrada padrao e eh feito a busca no arquivo invertido para saber se a frase esta
 	//contida ou nao no arquivo invertido
@@ -91,6 +95,7 @@ int main(int argc, char *argv[]){
 	string[i] = '\0';
 	char words[TAM];
 	int qtd_espaco = 0;
+	int files = argc;
 	while(fgets(string, sizeof(string), stdin)){
 		string[strlen(string)-1] = '\0';
 		qtd_espaco = 0;
@@ -104,7 +109,7 @@ int main(int argc, char *argv[]){
 
 		//AQUI VAI ESTAR A CHAMADA DA FUNCAO PARA VERIFICACAO DA EXISTENCIA DAS FRASES NOS ARQUIVOS INVERTIDOS
 		//nao esquecer de colocar a palavra toda em minusculo
-		verificar_frase(lista_nome, words);
+		verificar_frase(lista_nome, words, files);
 
 	}
 
@@ -214,34 +219,116 @@ void imprimir_dados(Pnome l){
 	}
 }
 
-void verificar_frase(Pnome l, char *string){
-	int posicao_input = 0;
-	Pnome p;
-	int i, j = 0;
-	char nome_aux[TAM];
+void verificar_frase(Pnome l, char *string, int qtd_arquivo){
+	int numero_arq, achou, qtd_ap, entra = 0, pos = 0, controla_print = 0;
+	int x, i = 0, cont, len, j = 0;
+	Pnome p = NULL, q = NULL, w = NULL;
+	char nome_aux[TAM], primeira_palavra[TAM];
 
 	if(string[strlen(string) - 1] == ' ')
 		string[strlen(string) - 1] = '\0';
-	for(i = 0; i < strlen(string)+1; i++){
+	printf("%s\n", string);
 
-		if(string[i] == ' ' || string[i] == '\0'){
-			nome_aux[j] = '\0';
-			printf("%s\n", nome_aux);
-			j = 0;
-			if(consulta_nome(l,nome_aux)){
-				//AQUI VAI FAZER AS COMPARACOES
-				p = cons_nome(l,nome_aux);
-			}
-			else{
-				//caso nao tenha a palavra 
-				//printf("FRASE NAO ENCONTRADA!\n");
-			}
+	//a primeira palavra esta na variavel nome_aux
+	//a variavel 'i' guarda o tamanho da primeira palavra
+	while(string[i] != ' ' && string[i] != '\0'){
+		primeira_palavra[i] = string[i];
+		i++;
+	}
+	primeira_palavra[i] = '\0';
+	//printf("%d\n", i);
+	//printf("%d\n", (int)strlen(string));
+	len = strlen(string);
+
+	for(numero_arq = 1; numero_arq < qtd_arquivo; numero_arq++){
+		printf("Numero arquivo: %d\n", numero_arq);
+		if(consulta_nome(l,primeira_palavra)){
+			p = cons_nome(l,primeira_palavra);
+			qtd_ap = busca_qtd(p->prox,numero_arq);
 		}
 		else{
-			nome_aux[j] = string[i];
-			j++;
+			achou = 0;
+			break;
 		}
 
+		//vamos percorrer o vetor de aparicoes de cada arquivo por completo da primeira palavra
+		for(x = 0; x < qtd_ap; x++){
+			//printf("number: %d\n", x);
 
+			if(consulta_nome(l,primeira_palavra)){
+				p = cons_nome(l,primeira_palavra);
+				pos = pegar_valor_vetor(p->prox,numero_arq,x);
+				printf("PRIMEIRA PALAVRA: %s POSICAO: %d\n", primeira_palavra, pos);
+				pos++;
+			}
+
+			for(cont = (i + 1); cont < (len+1); cont++){
+
+				if(string[cont] != ' ' && string[cont] != '\0'){
+					nome_aux[j] = string[cont];
+					j++;
+				}
+				else{
+					nome_aux[j] = '\0';
+					printf("NOME AUX: %s POSICAO: %d\n", nome_aux, pos);
+					pos++;
+					j = 0;
+				}
+			}
+			nome_aux[0] = '\0';
+
+		}
+
+		//if(achou == 1){
+		//	printf("arq%d.txt\n", numero_arq);
+		//	controla_print = 1;
+		//}
 	}
+	printf("\n");
+	//fim:
+	//if(achou == 0 && controla_print == 0)
+	//	printf("FRASE NAO ENCONTRADA!\n");
+}
+
+int verifica_posicao(Plista l, int num, int pos){
+	Plista p;
+	int i;
+
+	if(consulta_num_arq(l,num)){
+		p = cons_arq(l,num);
+
+		for(i = 0; i < (p->n_ap); i++){
+			if(p->aparicoes[i] == pos){
+				printf("posicao: %d\n", p->aparicoes[i]);
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+//funcao que retorna a quantidade de aparicoes que determinada palavra ocorre em um determinado arquivo 'num'
+int busca_qtd(Plista l, int num){
+	Plista p;
+	int aprc;
+
+	if(consulta_num_arq(l,num)){
+		p = cons_arq(l,num);
+		aprc = p->n_ap;
+	}
+
+	return aprc;
+}
+
+int pegar_valor_vetor(Plista l, int num, int pos){
+	Plista p;
+	int position;
+
+	if(consulta_num_arq(l,num)){
+		p = cons_arq(l,num);
+		position = p->aparicoes[pos];
+	}
+
+	return position;
 }
