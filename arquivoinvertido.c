@@ -220,7 +220,7 @@ void imprimir_dados(Pnome l){
 }
 
 void verificar_frase(Pnome l, char *string, int qtd_arquivo){
-	int numero_arq, achou, qtd_ap, entra = 0, pos = 0, controla_print = 0, tem = 0,final = 0;
+	int numero_arq, achou, qtd_ap, entra = 0, pos = 0, controla_print = 0, tem = 0,final = 0, primeira_vez = 1;
 	int x, i = 0, cont, len, j = 0;
 	Pnome p = NULL, q = NULL;
 	char nome_aux[TAM], primeira_palavra[TAM];
@@ -242,13 +242,20 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 			if(consulta_nome(l,primeira_palavra)){
 				p = cons_nome(l,primeira_palavra);
 				if(consulta_num_arq(p->prox,numero_arq)){
-					printf("arq%d.txt\n", numero_arq);
+					if(primeira_vez == 1){
+						printf("arq%d.txt", numero_arq);
+						primeira_vez++;
+					}
+					else
+						printf(" arq%d.txt", numero_arq);
 					tem = 1;
 				}
 			}
 		}
 		if(tem == 0)
-			printf("FRASE NAO ENCONTRADA!\n");
+			printf("FRASE NAO ENCONTRADA!");
+		primeira_vez = 1;
+		printf("\n");
 		return;
 
 	}
@@ -315,8 +322,17 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 				}
 
 				if(achou == 1 && controla_print == 1){
-					printf("arq%d.txt\n", numero_arq);
-					final = 1;
+					if(primeira_vez == 1){
+						printf("arq%d.txt", numero_arq);
+						final = 1;
+						primeira_vez++;
+					}
+					else{
+						printf(" arq%d.txt", numero_arq);
+						final = 1;
+						primeira_vez++;						
+					}
+
 					break;
 				}
 			}
@@ -325,7 +341,8 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 
 	fim:
 	if(final == 0)
-		printf("FRASE NAO ENCONTRADA!\n");
+		printf("FRASE NAO ENCONTRADA!");
+	printf("\n");
 }
 
 int verifica_posicao(Plista l, int num_arquivo, int pos){
