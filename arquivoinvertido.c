@@ -241,12 +241,14 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 		for(numero_arq = 1; numero_arq < qtd_arquivo; numero_arq++){
 			if(consulta_nome(l,primeira_palavra)){
 				p = cons_nome(l,primeira_palavra);
-				if(consulta_num_arq(p->prox,numero_arq))
+				if(consulta_num_arq(p->prox,numero_arq)){
 					printf("arq%d.txt\n", numero_arq);
+					tem = 1;
+				}
 			}
-			else
-				printf("FRASE NAO ENCONTRADA!\n");
 		}
+		if(tem == 0)
+			printf("FRASE NAO ENCONTRADA!\n");
 		return;
 
 	}
