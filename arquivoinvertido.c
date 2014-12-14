@@ -103,7 +103,7 @@ int main(int argc, char *argv[]){
 			if(string[i] == ' ')
 				qtd_espaco++;
 
-			words[i] = string[i];
+			words[i] = tolower(string[i]);
 		}
 		words[i] = '\0';
 
@@ -295,7 +295,7 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 								achou = verifica_posicao(q->prox,numero_arq,pos);
 							}
 							else{
-								break;
+								goto continua;
 							}
 
 						}
@@ -335,8 +335,11 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 
 					break;
 				}
+				pos = 0;
 			}
 		} //fim 'if' qtd_ap maior que um
+		continua:
+		continue;
 	} //fim 'for' numero arquivo
 
 	fim:
