@@ -1,0 +1,6 @@
+O programa deve então ler da entrada padrão uma sequência de frases (no mínimo uma palavra, e no
+máximo dez), e imprimir na saída padrão os nomes dos arquivos nos quais estas frases aparecem. O
+nomes dos arquivos devem estar separados por um espaço (não há espaço após o último nome de
+arquivo), e a linha deve terminar com uma quebra de linha. Se a sequência não ocorrer em nenhum
+arquivo, deve-se imprimir na saída padrão a frase “FRASE NAO ENCONTRADA!\n”. Deve-se utilizar
+o conceito de arquivos invertidos para este trabalho. rato roeu a roupa

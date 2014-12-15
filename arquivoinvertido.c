@@ -33,14 +33,14 @@ void inserir_arquivo(Plista *l, int num_arq);
 int consulta_num_arq(Plista l, int num_arq);
 Plista cons_arq(Plista l, int num_arq);
 void imprimir_dados(Pnome l);
-void verificar_frase(Pnome l, char *string, int qtd_arquivo);
+void verificar_frase(Pnome l, char *string, int qtd_arquivo, char *argv[]);
 int busca_qtd(Plista l, int num);
 int pegar_valor_vetor(Plista l, int num, int pos);
 int verifica_posicao(Plista l, int num, int pos);
 
 
 int main(int argc, char *argv[]){
-	
+
 	int i = 0, count, j = 0, tamanho = 0;
 	FILE *arquivo;
 	char carac;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]){
 
 		//AQUI VAI ESTAR A CHAMADA DA FUNCAO PARA VERIFICACAO DA EXISTENCIA DAS FRASES NOS ARQUIVOS INVERTIDOS
 		//nao esquecer de colocar a palavra toda em minusculo
-		verificar_frase(lista_nome, words, files);
+		verificar_frase(lista_nome, words, files,argv);
 
 	}
 
@@ -219,7 +219,7 @@ void imprimir_dados(Pnome l){
 	}
 }
 
-void verificar_frase(Pnome l, char *string, int qtd_arquivo){
+void verificar_frase(Pnome l, char *string, int qtd_arquivo, char *argv[]){
 	int numero_arq, achou, qtd_ap, entra = 0, pos = 0, controla_print = 0, tem = 0,final = 0, primeira_vez = 1;
 	int x, i = 0, cont, len, j = 0;
 	Pnome p = NULL, q = NULL;
@@ -227,7 +227,7 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 
 	if(string[strlen(string) - 1] == ' ')
 		string[strlen(string) - 1] = '\0';
-	printf("%s\n", string);
+	//printf("%s\n", string);
 
 
 	while(string[i] != ' ' && string[i] != '\0'){
@@ -243,11 +243,11 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 				p = cons_nome(l,primeira_palavra);
 				if(consulta_num_arq(p->prox,numero_arq)){
 					if(primeira_vez == 1){
-						printf("arq%d.txt", numero_arq);
+						printf("%s", argv[numero_arq]);
 						primeira_vez++;
 					}
 					else
-						printf(" arq%d.txt", numero_arq);
+						printf(" %s", argv[numero_arq]);
 					tem = 1;
 				}
 			}
@@ -323,12 +323,12 @@ void verificar_frase(Pnome l, char *string, int qtd_arquivo){
 
 				if(achou == 1 && controla_print == 1){
 					if(primeira_vez == 1){
-						printf("arq%d.txt", numero_arq);
+						printf("%s", argv[numero_arq]);
 						final = 1;
 						primeira_vez++;
 					}
 					else{
-						printf(" arq%d.txt", numero_arq);
+						printf(" %s", argv[numero_arq]);
 						final = 1;
 						primeira_vez++;						
 					}

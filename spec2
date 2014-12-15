@@ -1,0 +1,6 @@
+O trabalho deverá ser enviado por e-mail (mpamplona2.ufba@gmail.com), com o assunto
+“TRABALHO 2 - EDAII.2014.2”. Este e-mail deve conter um único anexo de nome “trabalho2.tgz”.
+Dentro deste arquivo compactado deve haver uma pasta com o nome “trabalho2” que contém o código
+fonte e um arquivo Makefile que gere um executável chamado “a.out” no diretório “trabalho2”. Cada
+aluno deverá utilizar o mesmo arquivo de identificação do primeiro trabalho, que deve ser incluso
+inalterado no diretório “trabalho2”. 

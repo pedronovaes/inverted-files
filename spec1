@@ -1,0 +1,7 @@
+Cada aluno deve desenvolver um programa na linguagem C que receba vários nomes de arquivo como
+parâmetro. Cada arquivo terá um texto qualquer, e todas as palavras contidas nestes textos possuem
+apenas os caracteres minúsculos [a-z] e maiúsculos [A-Z] sem acento. O texto ainda pode conter
+espaços, quebras de linha, tabs, traços e pontuações, que devem ser considerados separadores (a
+sentença “pode-se” deve ser considerada duas palavras: “pode” e “se”). Para efeitos de comparação,
+letras maiúsculas e suas respectivas versões minúsculas não devem ser consideradas diferentes. O
+exemplo abaixo mostra como o programa será testado.
